@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  api:
+    build: ./services/api
+    environment:
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+    depends_on:
+      db:
+        # Unlike Terraform's depends_on, this actually WAITS for the
+        # healthcheck to pass. Different tool, different guarantee.
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build: ./services/web
+    environment:
+      API_URL: http://api:8000
+      PROJECT_NAME: ${PROJECT_NAME}
+    ports:
+      - "80:8000"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  pgdata:

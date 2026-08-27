@@ -1,11 +1,11 @@
-# Pass two: the same platform on AWS
+# Platform deployed to AWS via Terraform
 
 ![mckurz-simple-aws-app-terraform](assets/mckurz-simple-aws-app-terraform.png)
 
 Same three containers, now running on an EC2 instance inside a VPC you also
 define in Terraform.
 
-## What maps to what
+## Component Mapping
 
 | Local (pass one)        | AWS (pass two)                          |
 |-------------------------|------------------------------------------|
@@ -20,7 +20,7 @@ Terraform now stops at the instance boundary. It creates the machine and hands
 it a startup script; everything above that line is Docker's job. That split is
 the thing to notice.
 
-## Before you start
+## Prerequisites and Cost
 
 1. **Set a billing alarm.** Billing console -> Budgets -> a $5 monthly budget
    with an email alert. Do this first.
@@ -31,7 +31,7 @@ the thing to notice.
    `services/api` and `services/web` directories from pass one. Copy the
    `docker-compose.yml` in this folder into that repo.
 
-## Run it
+## Build the app with Terraform
 
     cp terraform.tfvars.example terraform.tfvars    # edit all three values
     curl -s https://checkip.amazonaws.com           # your IP, for ssh_cidr
@@ -48,7 +48,7 @@ Watch it:
 
 When `/var/log/platform-ready` exists, open `terraform output -raw web_url`.
 
-## Tear it down
+## Be sure to delete the services!
 
     terraform destroy
 

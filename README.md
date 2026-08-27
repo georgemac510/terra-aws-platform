@@ -1,5 +1,7 @@
 # Pass two: the same platform on AWS
 
+![mckurz-simple-aws-app-terraform](assets/mckurz-simple-aws-app-terraform.png)
+
 Same three containers, now running on an EC2 instance inside a VPC you also
 define in Terraform.
 
